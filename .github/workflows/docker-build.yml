@@ -12,7 +12,7 @@ on:
       - main
 
 env:
-  REPO: "sealio"
+  REPO: "michelvaillant"
   BUILD_PLATFORMS: "linux/amd64,linux/arm64"
 
 jobs:
