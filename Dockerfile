@@ -69,8 +69,6 @@ RUN set -eo pipefail; \
   openssl \
   curl unzip \
   ; \
-  cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
-  echo "Asia/Shanghai" > /etc/timezone && \
   rm -rf /var/cache/apk/*
 
 # set locale
@@ -78,6 +76,8 @@ RUN set -eo pipefail; \
   apk add -U --no-cache \
   tzdata \
   ; \
+  cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+  echo "Asia/Shanghai" > /etc/timezone && \
   rm -rf /var/cache/apk/*
 ENV LANG='en_US.UTF-8' \
   LANGUAGE='en_US:en' \
