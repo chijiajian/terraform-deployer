@@ -37,7 +37,16 @@ RUN set -eo pipefail; \
 ENV TF_PLUGIN_CACHE_DIR="/workspace/.terraform.d/plugin-cache" \
   TF_PLUGIN_MIRROR_DIR="/workspace/.terraform.d/plugins"
 
-RUN echo 'terraform {\n  required_providers {\n    zstack = {\n      source  = "ZStack-Robot/zstack"\n      version = ">= 1.0.9"\n    }\n  }\n}' > /workspace/main.tf
+RUN cat > /workspace/main.tf <<'EOF'
+terraform {
+  required_providers {
+    zstack = {
+      source  = "ZStack-Robot/zstack"
+      version = ">= 1.0.9"
+    }
+  }
+}
+EOF
 
 RUN set -eo pipefail; \
   mkdir -p $TF_PLUGIN_CACHE_DIR; \
