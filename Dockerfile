@@ -24,7 +24,7 @@ WORKDIR /workspace
 
 # download templates
 RUN set -eo pipefail; \
-  echo "walrus-catalog walrus-catalog-sandbox terraform-zstack-modules" | tr -s '[:blank:]' '\n' | \
+  echo "walrus-catalog walrus-catalog-sandbox" | tr -s '[:blank:]' '\n' | \
   while read -r org _; do \
   curl -sSL "https://api.github.com/orgs/$org/repos" | jq -r '.[].name' | \
   while read -r repo _; do \
@@ -36,6 +36,9 @@ RUN set -eo pipefail; \
 ## cache plugins to reduce network latency
 ENV TF_PLUGIN_CACHE_DIR="/workspace/.terraform.d/plugin-cache" \
   TF_PLUGIN_MIRROR_DIR="/workspace/.terraform.d/plugins"
+
+RUN echo 'terraform {\n  required_providers {\n    zstack = {\n      source  = "ZStack-Robot/zstack"\n      version = ">= 1.0.9"\n    }\n  }\n}' > /workspace/main.tf
+
 RUN set -eo pipefail; \
   mkdir -p $TF_PLUGIN_CACHE_DIR; \
   mkdir -p $TF_PLUGIN_MIRROR_DIR; \
@@ -45,9 +48,12 @@ RUN set -eo pipefail; \
   }\n \
   direct {} \n \
   }\n" > /root/.terraformrc && \
-  for dir in walrus-catalog* terraform-zstack-modules*; do \
+  for dir in walrus-catalog*; do \
   [ -d "$dir" ] && terraform -chdir="$dir" init && terraform -chdir="$dir" providers mirror $TF_PLUGIN_MIRROR_DIR || true; \
-  done
+  done  && \
+  \
+  terraform -chdir=/workspace init && \
+  terraform -chdir=/workspace providers mirror $TF_PLUGIN_MIRROR_DIR
 # find . -maxdepth 1 -type d -name 'walrus-catalog*' -exec sh -c 'terraform -chdir="$1" init && terraform -chdir="$1" providers mirror $TF_PLUGIN_MIRROR_DIR' _ {} \;
 ## remove non-plugin files to prevent annoying message
 RUN set -eo pipefail; \
